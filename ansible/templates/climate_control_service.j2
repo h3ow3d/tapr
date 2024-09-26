@@ -1,0 +1,17 @@
+[Unit]
+Description=Climate Control Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /usr/local/bin/climate_control.py
+Restart=always
+User=pi
+Group=pi
+Environment=PYTHONUNBUFFERED=1
+Environment=TAPO_EMAIL=your_tapo_account_email
+Environment=TAPO_PASSWORD=your_tapo_account_password
+Environment=TAPO_IP_HUMIDIFIER=192.168.1.100
+Environment=TAPO_IP_HEATER=192.168.1.101
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+mqtt:
+  broker_host: "localhost"
+  broker_port: 1883
+  topics:
+    humidity_topic: "sensors/humidity/#"
+    temperature_topic: "sensors/temperature/#"
+  tapo:
+    email: "your_tapo_account_email"
+    password: "your_tapo_account_password"
+    humidifier_ip: "192.168.1.100"
+    heater_ip: "192.168.1.101"
+  ranges:
+    humidity: [30, 50]  # Example range: 30% to 50%
+    temperature: [20, 25]  # Example range: 20°C to 25°C
