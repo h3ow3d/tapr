@@ -8,7 +8,10 @@ from tapo import ApiClient
 import yaml
 
 
-with open("climate_control_config.yml", "r") as config_file:
+script_dir = os.path.dirname(os.path.realpath(__file__))
+config_path = os.path.join(script_dir, "climate_control_config.yml")
+
+with open(config_path, "r") as config_file:
     config = yaml.safe_load(config_file)
 
 MQTT_BROKER = config["mqtt"]["broker_host"]
