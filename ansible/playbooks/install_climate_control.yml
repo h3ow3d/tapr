@@ -41,7 +41,7 @@
 
     - name: Create systemd service file for the Climate Control script
       ansible.builtin.template:
-        src: templates/climate_control_service.j2
+        src: climate_control_service.j2
         dest: /etc/systemd/system/climate_control_service.service
         mode: '0644'
 
