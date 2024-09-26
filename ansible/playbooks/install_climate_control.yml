@@ -4,16 +4,28 @@
   become: true
 
   vars_files:
-    - ../../services/climate_control/climate_control_config.yml
+    - ../../config.yml  # Load configuration from a central config.yml if needed
 
   tasks:
-    - name: Install required Python packages
-      ansible.builtin.pip:
+    - name: Install required system packages
+      ansible.builtin.apt:
         name:
-          - paho-mqtt
-          - tapo
-          - pyyaml
+          - python3-venv
+          - python3-pip
         state: present
+
+    - name: Create a Python virtual environment
+      ansible.builtin.command:
+        cmd: python3 -m venv /usr/local/bin/climate_control_venv
+        creates: /usr/local/bin/climate_control_venv/bin/activate
+
+    - name: Install required Python packages in the virtual environment
+      ansible.builtin.command:
+        cmd: |
+          /usr/local/bin/climate_control_venv/bin/pip install \
+          paho-mqtt \
+          tapo \
+          pyyaml
 
     - name: Copy the climate control script to the destination
       ansible.builtin.copy:
@@ -23,8 +35,8 @@
 
     - name: Copy the MQTT configuration file
       ansible.builtin.copy:
-        src: ../../services/climate_control/climate_control_config.yml
-        dest: /usr/local/bin/climate_control_config.yml
+        src: ../../services/climate_control/mqtt_config.yml
+        dest: /usr/local/bin/mqtt_config.yml
         mode: '0644'
 
     - name: Create systemd service file for the Climate Control script
