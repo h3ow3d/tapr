@@ -54,10 +54,10 @@ async def check_and_control(sensor_type, value, min_range, max_range):
 
     if min_range <= value <= max_range:
         # Value is within range, turn the device off
-        control_device(device, "off")
+        await control_device(device, "off")
     else:
         # Value is out of range, turn the device on
-        control_device(device, "on")
+        await control_device(device, "on")
 
 
 def on_connect(client, userdata, flags, rc):
@@ -65,7 +65,7 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe([(HUMIDITY_TOPIC, 0), (TEMPERATURE_TOPIC, 0)])
 
 
-def on_message(client, userdata, msg):
+async def on_message(client, userdata, msg):
     try:
         message = json.loads(msg.payload.decode())
         sensor_type = message.get("sensor_type")
@@ -73,9 +73,9 @@ def on_message(client, userdata, msg):
         print(f"Received {sensor_type}: {value}")
 
         if sensor_type == "humidity":
-            check_and_control("humidity", value, *HUMIDITY_RANGE)
+            await check_and_control("humidity", value, *HUMIDITY_RANGE)
         elif sensor_type == "temperature":
-            check_and_control("temperature", value, *TEMPERATURE_RANGE)
+            await check_and_control("temperature", value, *TEMPERATURE_RANGE)
         else:
             print(f"Unknown sensor type received: {sensor_type}")
     except ValueError as e:
