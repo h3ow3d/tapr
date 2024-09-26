@@ -36,7 +36,7 @@
     - name: Copy the MQTT configuration file
       ansible.builtin.copy:
         src: ../../services/climate_control/climate_control_config.yml
-        dest: /usr/local/bin/mqtt_config.yml
+        dest: /usr/local/bin/climate_control_config.yml
         mode: '0644'
 
     - name: Create systemd service file for the Climate Control script
