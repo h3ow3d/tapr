@@ -1,0 +1,41 @@
+---
+- name: Install Mosquitto MQTT Broker on Raspberry Pi
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install Mosquitto and Mosquitto clients
+      ansible.builtin.apt:
+        name:
+          - mosquitto
+          - mosquitto-clients
+        state: present
+
+    - name: Enable and start Mosquitto service
+      ansible.builtin.systemd:
+        name: mosquitto
+        enabled: true
+        state: started
+
+    - name: Configure Mosquitto to allow anonymous access
+      ansible.builtin.lineinfile:
+        path: /etc/mosquitto/mosquitto.conf
+        line: "allow_anonymous true"
+        state: present
+        create: true
+        mode: '0644'
+
+    - name: Restart Mosquitto to apply configuration
+      ansible.builtin.systemd:
+        name: mosquitto
+        state: restarted
+
+  handlers:
+    - name: Restart Mosquitto
+      ansible.builtin.systemd:
+        name: mosquitto
+        state: restarted
