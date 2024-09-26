@@ -4,7 +4,7 @@
   become: true
 
   vars_files:
-    - ../../config.yml  # Load configuration from a central config.yml if needed
+    - ../../service/climate_control/config.yml
 
   tasks:
     - name: Install required system packages
