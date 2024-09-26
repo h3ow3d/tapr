@@ -3,12 +3,12 @@ import os
 
 import paho.mqtt.client as mqtt
 
-from tapo.controller import TapoController
+from tapo import ApiClient
 
 import yaml
 
 
-with open("mqtt_config.yml", "r") as config_file:
+with open("climate_control_config.yml", "r") as config_file:
     config = yaml.safe_load(config_file)
 
 MQTT_BROKER = config["mqtt"]["broker_host"]
@@ -24,40 +24,37 @@ TAPO_IP_HEATER = os.getenv("TAPO_IP_HEATER")
 HUMIDITY_RANGE = config["mqtt"]["ranges"]["humidity"]
 TEMPERATURE_RANGE = config["mqtt"]["ranges"]["temperature"]
 
-humidifier_controller = TapoController(
-    TAPO_IP_HUMIDIFIER, TAPO_EMAIL, TAPO_PASSWORD
-)  # noqa: E501
-heater_controller = TapoController(TAPO_IP_HEATER, TAPO_EMAIL, TAPO_PASSWORD)
+tapo_client = ApiClient(TAPO_EMAIL, TAPO_PASSWORD)
 
 
-def control_device(controller, action):
+async def control_device(device, action):
     """Control the Tapo device (on/off)."""
     if action == "on":
-        controller.turn_on()
-        print(f"Device {controller.ip} turned ON.")
+        await device.on()
+        print(f"Device {device.ip} turned ON.")
     elif action == "off":
-        controller.turn_off()
-        print(f"Device {controller.ip} turned OFF.")
+        await device.off()
+        print(f"Device {device.ip} turned OFF.")
     else:
         print(f"Unknown action: {action}")
 
 
-def check_and_control(sensor_type, value, min_range, max_range):
+async def check_and_control(sensor_type, value, min_range, max_range):
     """Check if the value is within range and control the device accordingly."""  # noqa: E501
     if sensor_type == "humidity":
-        controller = humidifier_controller
+        device = await tapo_client.p100(TAPO_IP_HUMIDIFIER)
     elif sensor_type == "temperature":
-        controller = heater_controller
+        device = await tapo_client.p100(TAPO_IP_HEATER)
     else:
         print(f"Unknown sensor type: {sensor_type}")
         return
 
     if min_range <= value <= max_range:
         # Value is within range, turn the device off
-        control_device(controller, "off")
+        control_device(device, "off")
     else:
         # Value is out of range, turn the device on
-        control_device(controller, "on")
+        control_device(device, "on")
 
 
 def on_connect(client, userdata, flags, rc):
