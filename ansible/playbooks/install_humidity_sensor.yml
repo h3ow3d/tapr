@@ -25,7 +25,7 @@
           /usr/local/bin/humidity_sensor_venv/bin/pip install \
           paho-mqtt \
           tapo \
-          pyyaml
+          Adafruit_DHT
 
     - name: Copy the climate control script to the destination
       ansible.builtin.copy:
