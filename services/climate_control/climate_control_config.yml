@@ -5,5 +5,5 @@ mqtt:
     humidity_topic: "sensors/humidity/#"
     temperature_topic: "sensors/temperature/#"
   ranges:
-    humidity: [30, 50]  # Example range: 30% to 50%
-    temperature: [20, 25]  # Example range: 20°C to 25°C
+    humidity: [60, 100]  # Example range: 30% to 50%
+    temperature: [25, 100]  # Example range: 20°C to 25°C
