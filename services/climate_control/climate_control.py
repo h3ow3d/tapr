@@ -21,9 +21,9 @@ HUMIDITY_TOPIC = config["mqtt"]["topics"]["humidity_topic"]
 TEMPERATURE_TOPIC = config["mqtt"]["topics"]["temperature_topic"]
 
 # Tapo Device Configuration (from environment variables)
-TAPO_USERNAME = "holdens.uk@gmail.com"
-TAPO_PASSWORD = "Itwaswr1tt3n!#"
-TAPO_IP_HUMIDIFIER = "192.168.68.110"
+TAPO_USERNAME = os.getenv("TAPO_EMAIL")
+TAPO_PASSWORD = os.getenv("TAPO_PASSWORD")
+TAPO_IP_HUMIDIFIER = os.getenv("TAPO_IP_HUMIDIFIER")
 TAPO_IP_HEATER = os.getenv("TAPO_IP_HEATER")
 
 # Prescribed Ranges
