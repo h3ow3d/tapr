@@ -1,0 +1,13 @@
+---
+- name: Install and configure all services
+  hosts: localhost
+  become: true
+
+- name: Install MQTT Broker
+  import_playbook: install_mqtt.yml
+
+- name: Install Climate Control Service
+  import_playbook: install_climate_control.yml
+
+- name: Install Humidity Sensor Service
+  import_playbook: install_humidity_sensor.yml
