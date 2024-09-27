@@ -1,0 +1,7 @@
+mqtt:
+  broker_host: "localhost"
+  broker_port: 1883
+  topics:
+    humidity_topic: "sensors/humidity/humidity_sensor"
+sensor:
+  pin: 4

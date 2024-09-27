@@ -5,8 +5,8 @@ After=network.target
 [Service]
 ExecStart=/usr/local/bin/climate_control_venv/bin/python /usr/local/bin/climate_control.py
 Restart=always
-User=pi
-Group=pi
+User=pingu
+Group=pingu
 Environment=PYTHONUNBUFFERED=1
 Environment=TAPO_EMAIL=your_tapo_account_email
 Environment=TAPO_PASSWORD=your_tapo_account_password
