@@ -9,5 +9,5 @@
 - name: Install Climate Control Service
   import_playbook: install_climate_control.yml
 
-- name: Install Humidity Sensor Service
-  import_playbook: install_humidity_sensor.yml
+- name: Install DHT Sensor Service
+  import_playbook: install_dht_sensor.yml
