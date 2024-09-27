@@ -23,7 +23,7 @@
       ansible.builtin.command:
         cmd: |
           /usr/local/bin/dht_sensor_venv/bin/pip install \
-          paho-mqtt \
+          pyyaml \
           tapo \
           Adafruit_DHT
 
