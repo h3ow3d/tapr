@@ -1,9 +1,11 @@
+import asyncio
 import json
 import os
-import asyncio
 
 import paho.mqtt.client as mqtt
+
 from tapo import ApiClient
+
 import yaml
 
 # Load configuration
@@ -34,6 +36,7 @@ print("Initializing Tapo client")
 # Initialize Tapo client
 tapo_client = ApiClient(TAPO_USERNAME, TAPO_PASSWORD)
 
+
 async def control_device(device, action):
     """Control the Tapo device (on/off)."""
     device_info = await device.get_device_info()
@@ -47,6 +50,7 @@ async def control_device(device, action):
         print(f"Device {device_dict['ip']} turned OFF.")
     else:
         print(f"Unknown action: {action}")
+
 
 async def check_and_control(sensor_type, value, min_range, max_range):
     """Check if the value is within range and control the device."""
@@ -70,10 +74,12 @@ async def check_and_control(sensor_type, value, min_range, max_range):
         print(f"Value {value} is outside the range, turning device ON.")
         await control_device(device, "on")
 
+
 def on_connect(client, userdata, flags, rc):
     print(f"Connected with result code {rc}")
     print(f"Subscribing to topics: {HUMIDITY_TOPIC}, {TEMPERATURE_TOPIC}")
     client.subscribe([(HUMIDITY_TOPIC, 0), (TEMPERATURE_TOPIC, 0)])
+
 
 def on_message(client, userdata, msg):
     try:
@@ -85,15 +91,22 @@ def on_message(client, userdata, msg):
 
         loop = asyncio.get_event_loop()
         if sensor_type == "humidity":
-            loop.run_until_complete(check_and_control("humidity", value, *HUMIDITY_RANGE))
+            loop.run_until_complete(
+                check_and_control("humidity", value, *HUMIDITY_RANGE)
+            )
         elif sensor_type == "temperature":
-            loop.run_until_complete(check_and_control("temperature", value, *TEMPERATURE_RANGE))
+            loop.run_until_complete(
+                check_and_control("temperature", value, *TEMPERATURE_RANGE)
+            )
         else:
             print(f"Unknown sensor type received: {sensor_type}")
     except ValueError as e:
-        print(f"Failed to decode message: {msg.payload.decode()} with error: {e}")
+        print(
+            f"Failed to decode message: {msg.payload.decode()} with error: {e}"
+        )  # noqa: E501
     except Exception as e:
         print(f"Error processing message: {e}")
+
 
 client = mqtt.Client()
 client.on_connect = on_connect
@@ -102,4 +115,3 @@ client.on_message = on_message
 print(f"Connecting to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}")
 client.connect(MQTT_BROKER, MQTT_PORT, 60)
 client.loop_forever()
-

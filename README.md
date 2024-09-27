@@ -131,7 +131,7 @@ ansible-playbook playbooks/install_mqtt.yml
 This service monitors temperature and humidity data via MQTT, determines if the values fall within a prescribed range, and sends control messages to devices.
 
 ```bash
-ansible-playbook playbooks/install_climate_control.yml
+ansible-playbook ansible/playbooks/install_climate_control.yml
 ```
 
 ## Usage
