@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import time
 
@@ -8,11 +9,19 @@ import paho.mqtt.client as mqtt
 
 import yaml
 
+# Set up logging to log to stdout (systemd will capture this)
+logging.basicConfig(
+    level=logging.INFO,  # Adjust the logging level as needed
+    format="%(asctime)s %(levelname)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+
 # Load configuration
 script_dir = os.path.dirname(os.path.realpath(__file__))
 config_path = os.path.join(script_dir, "dht_sensor_config.yml")
 
-print(f"Loading configuration from {config_path}")
+logger.info(f"Loading configuration from {config_path}")
 with open(config_path, "r") as config_file:
     config = yaml.safe_load(config_file)
 
@@ -29,15 +38,19 @@ DHT_PIN = config["sensor"]["pin"]
 # Initialize MQTT client
 client = mqtt.Client()
 client.connect(MQTT_BROKER, MQTT_PORT, 60)
+logger.info(f"Connected to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}")
 
 
 def get_sensor_readings():
     """Read humidity and temperature from the DHT11 sensor."""
     humidity, temperature = Adafruit_DHT.read(DHT_SENSOR, DHT_PIN)
     if humidity is not None and temperature is not None:
+        logger.info(
+            f"Sensor readings - Humidity: {humidity}%, Temperature: {temperature}C"  # noqa: E501
+        )
         return humidity, temperature
     else:
-        print("Failed to retrieve data from sensor")
+        logger.error("Failed to retrieve data from sensor")
         return None, None
 
 
@@ -56,8 +69,10 @@ def publish_sensor_data():
         }
         client.publish(HUMIDITY_TOPIC, json.dumps(humidity_payload))
         client.publish(TEMPERATURE_TOPIC, json.dumps(temperature_payload))
-        print(f"Published humidity: {humidity_payload}")
-        print(f"Published temperature: {temperature_payload}")
+        logger.info(f"Published humidity data: {humidity_payload}")
+        logger.info(f"Published temperature data: {temperature_payload}")
+    else:
+        logger.warning("No valid sensor data to publish")
 
 
 # Main loop to publish sensor data periodically
@@ -66,6 +81,7 @@ try:
         publish_sensor_data()
         time.sleep(60)  # Publish every 60 seconds (adjust as needed)
 except KeyboardInterrupt:
-    print("Sensor service interrupted")
+    logger.info("Sensor service interrupted by user")
 finally:
     client.disconnect()
+    logger.info("Disconnected from MQTT broker")
