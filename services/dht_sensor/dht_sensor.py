@@ -51,7 +51,9 @@ def get_sensor_readings():
         )
         return humidity, temperature
     else:
-        logger.error("Failed to retrieve data from sensor")
+        logger.error(
+            f"Failed to retrieve data from sensor. Raw values - Humidity: {humidity}, Temperature: {temperature}"  # noqa: E501
+        )
         return None, None
 
 
