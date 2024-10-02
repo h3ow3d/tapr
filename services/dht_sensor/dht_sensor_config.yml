@@ -3,6 +3,6 @@ mqtt:
   broker_port: 1883
   topics:
     humidity_topic: "sensors/humidity/humidity_sensor"
-    temperature_topic: "sensors/humidity/temperature_sensor"
+    temperature_topic: "sensors/temperature/temperature_sensor"
 sensor:
   pin: 4

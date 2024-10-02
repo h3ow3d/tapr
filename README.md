@@ -80,15 +80,10 @@ The climate control service publishes and consumes messages to/from the MQTT bro
 ### Explanation of Fields
 
 - **`sensor_id`**: A unique identifier for each sensor. This helps distinguish between different sensors, especially when multiple sensors of the same type are deployed.
-
 - **`sensor_type`**: Indicates whether the sensor is measuring humidity or temperature. This field is useful for the consumers to know how to interpret the `value`.
-
 - **`location`**: The physical location of the sensor. This is especially useful in systems with multiple sensors spread across different locations.
-
 - **`timestamp`**: The time when the sensor reading was taken. Using an ISO 8601 format ensures consistency and ease of parsing across different systems.
-
 - **`value`**: The actual measured value from the sensor. For humidity, this would typically be a percentage, and for temperature, it could be in degrees Celsius or Fahrenheit.
-
 - **`unit`**: The unit of the `value`. For humidity, this would be `%`, and for temperature, this could be `C` (Celsius) or `F` (Fahrenheit).
 
 ## Setup and Installation
@@ -135,6 +130,46 @@ ansible-playbook ansible/playbooks/install_climate_control.yml
 ```
 
 ## Usage
+
+### Subscribing to MQTT Topics
+
+To monitor the temperature and humidity messages being published to the MQTT broker, you can use the `mosquitto_sub` command-line utility.
+
+1. **Subscribe to Humidity Messages**:
+
+   ```bash
+   mosquitto_sub -h localhost -t "sensors/humidity/#"
+   ```
+
+   This will subscribe to all messages published under the `sensors/humidity` topic.
+
+2. **Subscribe to Temperature Messages**:
+
+   ```bash
+   mosquitto_sub -h localhost -t "sensors/temperature/#"
+   ```
+
+   This will subscribe to all messages published under the `sensors/temperature` topic.
+
+3. **Subscribe to All Sensor Messages**:
+
+   If you want to subscribe to both humidity and temperature messages, you can subscribe to a broader topic:
+
+   ```bash
+   mosquitto_sub -h localhost -t "sensors/#"
+   ```
+
+   This will display all messages from both temperature and humidity sensors.
+
+4. **Verbose Output** (Optional):
+
+   If you want to see detailed output, including the topic name, use the `-v` flag:
+
+   ```bash
+   mosquitto_sub -h localhost -t "sensors/#" -v
+   ```
+
+   This will show the topic name along with the message payload.
 
 ### Starting Services
 
