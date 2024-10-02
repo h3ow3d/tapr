@@ -2,13 +2,13 @@ import asyncio
 import json
 import logging
 import os
+import time
 
 import paho.mqtt.client as mqtt
 
 from tapo import ApiClient
 
 import yaml
-
 
 # Set up logging
 logging.basicConfig(
@@ -48,18 +48,37 @@ tapo_client = ApiClient(TAPO_USERNAME, TAPO_PASSWORD)
 
 
 async def control_device(device, action):
-    """Control the Tapo device (on/off)."""
-    device_info = await device.get_device_info()
-    device_dict = device_info.to_dict()
-    logger.info(f"Control device {device_dict['ip']} with action {action}")
-    if action == "on":
-        await device.on()
-        logger.info(f"Device {device_dict['ip']} turned ON.")
-    elif action == "off":
-        await device.off()
-        logger.info(f"Device {device_dict['ip']} turned OFF.")
-    else:
-        logger.error(f"Unknown action: {action}")
+    """Control the Tapo device (on/off) with retries if necessary."""
+    retries = 3  # Number of retries
+    for attempt in range(retries):
+        try:
+            device_info = await device.get_device_info()
+            device_dict = device_info.to_dict()
+
+            # Check current device status
+            is_device_on = device_dict.get("device_on", False)
+            logger.info(
+                f"Current status of {device_dict['ip']}: {'ON' if is_device_on else 'OFF'}"
+            )
+
+            # Only send action if necessary
+            if action == "on" and not is_device_on:
+                await device.on()
+                logger.info(f"Device {device_dict['ip']} turned ON.")
+            elif action == "off" and is_device_on:
+                await device.off()
+                logger.info(f"Device {device_dict['ip']} turned OFF.")
+            else:
+                logger.info(
+                    f"No action required, device is already {'ON' if is_device_on else 'OFF'}."
+                )
+            break  # Exit retry loop if successful
+        except Exception as e:
+            logger.error(f"Attempt {attempt + 1}: Failed to control device: {e}")
+            if attempt < retries - 1:
+                time.sleep(2)  # Wait 2 seconds before retrying
+            else:
+                logger.error("All retries failed.")
 
 
 async def check_and_control(sensor_type, value, min_range, max_range):
@@ -77,6 +96,7 @@ async def check_and_control(sensor_type, value, min_range, max_range):
         logger.error(f"Unknown sensor type: {sensor_type}")
         return
 
+    # Decide whether to turn the device on or off based on the sensor value
     if min_range <= value <= max_range:
         logger.info(f"Value {value} is within the range, turning device OFF.")
         await control_device(device, "off")
@@ -87,23 +107,17 @@ async def check_and_control(sensor_type, value, min_range, max_range):
 
 def on_connect(client, userdata, flags, rc):
     logger.info(f"Connected with result code {rc}")
-    logger.info(
-        f"Subscribing to topics: {HUMIDITY_TOPIC}, {TEMPERATURE_TOPIC}"
-    )  # noqa: E501
+    logger.info(f"Subscribing to topics: {HUMIDITY_TOPIC}, {TEMPERATURE_TOPIC}")
     client.subscribe([(HUMIDITY_TOPIC, 0), (TEMPERATURE_TOPIC, 0)])
 
 
 def on_message(client, userdata, msg):
     try:
-        logger.info(
-            f"Message received on topic {msg.topic}: {msg.payload.decode()}"
-        )  # noqa: E501
+        logger.info(f"Message received on topic {msg.topic}: {msg.payload.decode()}")
         message = json.loads(msg.payload.decode())
         sensor_type = message.get("sensor_type")
         value = message.get("value")
-        logger.info(
-            f"Parsed message: sensor_type={sensor_type}, value={value}"
-        )  # noqa: E501
+        logger.info(f"Parsed message: sensor_type={sensor_type}, value={value}")
 
         loop = asyncio.get_event_loop()
         if sensor_type == "humidity":
