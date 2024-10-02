@@ -9,6 +9,7 @@ import paho.mqtt.client as mqtt
 
 import yaml
 
+
 # Set up logging to log to stdout (systemd will capture this)
 logging.basicConfig(
     level=logging.INFO,  # Adjust the logging level as needed
