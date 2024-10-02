@@ -4,7 +4,7 @@
   become: true
 
   vars_files:
-    - ../../services/climate_control/climate_control_config.yml
+    - ../../services/dht_sensor/climate_control_config.yml
 
   tasks:
     - name: Install required system packages
@@ -39,9 +39,21 @@
         dest: /usr/local/bin/climate_control_config.yml
         mode: '0644'
 
+    - name: Ensure /var/log/climate_control.log exists
+      ansible.builtin.command:
+        cmd: touch /var/log/climate_control.log
+        creates: /var/log/climate_control.log
+
+    - name: Set correct permissions on /var/log/climate_control.log
+      ansible.builtin.file:
+        path: /var/log/climate_control.log
+        owner: pingu
+        group: pingu
+        mode: '0644'
+
     - name: Create systemd service file for the Climate Control script
       ansible.builtin.template:
-        src: climate_control_service.j2
+        src: templates/climate_control_service.j2
         dest: /etc/systemd/system/climate_control_service.service
         mode: '0644'
 
