@@ -82,7 +82,7 @@ def publish_sensor_data():
 try:
     while True:
         publish_sensor_data()
-        time.sleep(60)  # Publish every 60 seconds (adjust as needed)
+        time.sleep(3)  # Publish every 3 seconds
 except KeyboardInterrupt:
     logger.info("Sensor service interrupted by user")
 finally:
